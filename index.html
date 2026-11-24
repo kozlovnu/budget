@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style>
+<title>Личный бюджет</title>
+<link rel="icon" type="image/svg+xml" href="assets/icon.svg">
+<link rel="apple-touch-icon" href="assets/icon-180.png">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Бюджет">
+<meta name="theme-color" content="#ffffff">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap">
+<link rel="stylesheet" href="css/app.css">
+<!-- Модули приложения. Порядок важен только для групп: ядро → расчёты → интерфейс → экраны → модули → запуск.
+     Каждый экран и модуль сам регистрируется через App.view / App.actions (см. js/core/app.js). -->
+<!-- Ядро -->
+<script src="js/core/util.js" defer></script>
+<script src="js/core/app.js" defer></script>
+<script src="js/core/state.js" defer></script>
+<!-- База: библиотека Firebase, настройки проекта, слой совместимости с db.js -->
+<script src="js/vendor/firebase.js" defer></script>
+<script src="js/core/firebase-config.js" defer></script>
+<script src="js/core/cloud.js" defer></script>
+<!-- Расчёты (без интерфейса) -->
+<script src="js/calc/money.js" defer></script>
+<script src="js/calc/ledger.js" defer></script>
+<script src="js/calc/limits.js" defer></script>
+<script src="js/model/settings.js" defer></script>
+<script src="js/core/db.js" defer></script>
+<script src="js/calc/insights.js" defer></script>
+<script src="js/calc/forecast.js" defer></script>
+<script src="js/calc/pulse.js" defer></script>
+<!-- Интерфейс: каркас и общие элементы -->
+<script src="js/ui/icons.js" defer></script>
+<script src="js/ui/charts.js" defer></script>
+<script src="js/ui/shell.js" defer></script>
+<script src="js/ui/sheets.js" defer></script>
+<!-- Экраны -->
+<script src="js/views/capital.js" defer></script>
+<script src="js/views/journal.js" defer></script>
+<script src="js/views/analytics.js" defer></script>
+<script src="js/views/summary.js" defer></script>
+<script src="js/views/forecast.js" defer></script>
+<script src="js/views/accounts.js" defer></script>
+<script src="js/views/settings.js" defer></script>
+<script src="js/views/daily.js" defer></script>
+<!-- Главная: экран и виджеты -->
+<script src="js/home/home.js" defer></script>
+<script src="js/home/widgets.js" defer></script>
+<!-- Подключаемые модули -->
+<script src="js/game/engine.js" defer></script>
+<script src="js/game/awards.js" defer></script>
+<script src="js/features/backup.js" defer></script>
+<script src="js/features/import.js" defer></script>
+<script src="js/features/fctrack.js" defer></script>
+<script src="js/features/rates-auto.js" defer></script>
+<!-- Запуск -->
+<script src="js/core/auth.js" defer></script>
+<script src="js/ui/events.js" defer></script>
+<script src="js/main.js" defer></script>
+</head>
+<body>
+<div class="page" id="page"><div class="wall" aria-hidden="true"></div><div id="view"><p class="empty" style="padding-top:120px">Загружаю данные…</p></div></div>
+<div class="tabwrap" id="tabs"></div>
+<div id="sheet"></div>
+<div id="toast" aria-live="polite"></div>
+<div id="login" hidden></div>
+
+</body>
+</html>

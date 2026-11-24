@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Личный бюджет — тесты расчётов</title>
+<style>body{font:15px -apple-system,BlinkMacSystemFont,Inter,sans-serif;margin:24px;max-width:760px;color:#111}h1{font-size:22px}li{margin:4px 0}.ok{color:#1a7f37}.bad{color:#c62828}small{color:#666}</style>
+<!-- Те же модули, что в приложении (только расчёты), и файл тестов. Данные — тестовые, база не используется. -->
+<script src="js/core/util.js" defer></script>
+<script src="js/core/app.js" defer></script>
+<script src="js/core/state.js" defer></script>
+<script src="js/calc/money.js" defer></script>
+<script src="js/calc/ledger.js" defer></script>
+<script src="js/calc/limits.js" defer></script>
+<script src="js/model/settings.js" defer></script>
+<script src="js/core/db.js" defer></script>
+<script src="js/calc/insights.js" defer></script>
+<script src="js/calc/pulse.js" defer></script>
+<script src="js/calc/forecast.js" defer></script>
+<script src="js/features/fctrack.js" defer></script>
+<script src="js/views/journal.js" defer></script>
+<script src="tests/calc.test.js" defer></script>
+<script src="tests/run-browser.js" defer></script>
+</head>
+<body><h1>Тесты расчётов</h1><p id="sum">Выполняю…</p><ul id="list"></ul>
+<p><small>Проверяются остатки по сверкам, переводы между валютами, лимиты, долги, частичная запись настроек и переход на новую схему настроек.</small></p>
+</body>
+</html>

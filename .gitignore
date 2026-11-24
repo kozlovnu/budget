@@ -1,0 +1,6 @@
+tools/node_modules/
+.DS_Store
+*.log
+# резервные копии с личными данными в репозиторий не попадают
+budget-backup-*.json
+budget-operations-*.csv

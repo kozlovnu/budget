@@ -1,0 +1,10 @@
+rules_version = '2';
+// Доступ: каждый вошедший пользователь видит и меняет только свою папку users/{его uid}/…
+// Остальное закрыто для всех.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "budget-tools",
+  "private": true,
+  "description": "Сборка библиотеки Firebase в js/vendor/firebase.js. Запуск: npm install && npm run build",
+  "scripts": { "build": "esbuild firebase-entry.js --bundle --minify --format=iife --global-name=FBSDK --target=es2020 --outfile=../js/vendor/firebase.js --legal-comments=eof" },
+  "devDependencies": { "esbuild": "^0.25.0", "firebase": "13.4.0" }
+}
