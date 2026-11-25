@@ -67,7 +67,7 @@ function vHome() {
   const eyebrow = edit ? "Режим изменения" : ["Воскресенье", "Понедельник", "Вторник", "Среда", "Четверг", "Пятница", "Суббота"][d.getDay()] + ", " + d.getDate() + " " + MONG[d.getMonth()];
   // «Изменить» — под виджетами (как на iPhone), в заголовке — валюта, «скрыть цифры» и настройки
   const right = edit ? '<button class="btn pri" data-act="homedone" style="height:36px;padding:0 18px;font-size:15px;border-radius:999px">Готово</button>' : headRight();
-  let html = navHead("Главная", eyebrow, edit ? "" : curSeg(), right) + (edit ? "" : pfBar());
+  let html = navHead("Главная", eyebrow, edit ? "" : curSeg(), right) + (edit ? "" : pfBar() + guideHTML());
   if (edit) html += '<p class="foot" style="margin-top:6px">Перетащите виджет за ' + svg("move", 14) + ', чтобы поменять порядок. «Малый/Широкий» меняет размер, «−» убирает виджет.</p>';
   const grid = homeGridHTML(edit);
   html += '<section class="sec"><div class="hgrid' + (edit ? " editing" : "") + '" id="hgrid">' + (grid || '<div class="card mut" style="grid-column:1/-1">На Главной нет виджетов. Нажмите «Изменить», чтобы добавить.</div>') + '</div></section>';

@@ -84,7 +84,8 @@ function normalizeMeta(id) {
 
 async function boot() {
   // база — Firestore через js/core/cloud.js; разбор с помощью ИИ (SAMPLE) на своём хостинге недоступен
-  try { DB = Cloud.db; } catch (e) { DB = null; }
+  // демо-режим — база в памяти браузера с вымышленными данными (js/features/demo.js)
+  try { DB = Demo.on() ? Demo.db() : Cloud.db; } catch (e) { DB = null; }
   SAMPLE = null;
   DL = Cloud.downloads;
   if (!DB) { S.loadedMeta = S.loadedOps = true; S.noDb = true; render(); return; }

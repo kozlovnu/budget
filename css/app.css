@@ -527,3 +527,28 @@ html.locked .tabwrap{display:none}
 .lgcard input:focus{outline:2px solid var(--blue);outline-offset:0;border-color:transparent}
 .lgmsg{font-size:14px;line-height:1.35;color:var(--redT);text-align:center}
 .lglink{background:none;border:0;color:var(--link);font:inherit;font-size:15px;padding:6px;cursor:pointer}
+
+/* ---------- демо-режим и приветствие ---------- */
+#demobar{position:sticky;top:0;z-index:30;display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 auto;padding:8px 12px 8px 16px;padding-top:calc(8px + env(safe-area-inset-top,0px));background:#FFF4D6;color:#5C4300;font-size:14px;line-height:1.3;border-bottom:1px solid rgba(0,0,0,.08)}
+#demobar span{min-width:0}
+#demobar .btn{width:auto;height:34px;padding:0 14px;font-size:14px;border-radius:999px;flex:none;box-shadow:none}
+[data-theme=dark] #demobar{background:#3A2E0A;color:#FFE7A3}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]) #demobar{background:#3A2E0A;color:#FFE7A3}}
+.wlc{display:flex;flex-direction:column;gap:12px;padding:22px 18px;max-width:520px}
+.wlc .wlc-btn{height:48px;font-size:16px;display:flex;align-items:center;justify-content:center;gap:8px}
+
+/* ---------- гид «С чего начать» (префикс gd-, чтобы не пересекаться с классами игры) ---------- */
+.gd-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:0 16px}
+.gd-head span{font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.02em}
+.gd-head button{font-size:15px;color:var(--link)}
+.gd-bar{height:6px;border-radius:3px;background:var(--fill2,rgba(120,120,128,.16));overflow:hidden;margin:8px 16px 10px}
+.gd-bar i{display:block;height:100%;background:var(--blue);border-radius:3px;transition:width .4s}
+.gd-row .gd-n{flex:none;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:600;color:var(--blue);background:rgba(0,122,255,.12)}
+.gd-row.next .gd-n{background:var(--blue);color:#fff}
+.gd-row.done .gd-n{background:#34C759;color:#fff}
+.gd-row.done .t b{color:var(--muted);text-decoration:line-through;text-decoration-color:rgba(142,142,147,.6)}
+.gd-row.done{cursor:default}
+.gd-row .t b{white-space:normal}
+.gd-row .t small{white-space:normal;line-height:1.3}
+.gd-row .gd-go{color:var(--muted);font-size:22px;line-height:1;flex:none}
+@media (prefers-reduced-motion:reduce){.gd-bar i{transition:none}}

@@ -15,7 +15,8 @@ function render(fromDb) {
   if (S.noDb) { v.innerHTML = navHead("Бюджет", "") + '<div class="card empty" style="margin-top:20px">Приложение не подключено к базе: заполните настройки Firebase в файле js/core/firebase-config.js.</div>'; return; }
   ensureSettings();
   applyUI();
-  if (!S.accounts) { v.innerHTML = navHead("Бюджет", "") + '<div class="card empty" style="margin-top:20px">Пока нет ни одного счета. Добавьте первый счет или загрузите Excel-файл с остатками.<br><br><button class="btn pri" data-act="newacc">Добавить счет</button></div>'; return; }
+  // пустая база: приветствие с демо; резервные копии и «О данных» доступны и без счетов — чтобы перенести данные из копии
+  if (!S.accounts && !["backups", "about"].includes(UI.view)) { v.innerHTML = Demo.welcome(); return; }
   if (!UI.booted) { UI.booted = true; const u = PZ(); if (u.cur) UI.cur = u.cur; if (!location.hash) { if (["home", "capital", "journal"].includes(u.start)) UI.view = u.start; else if (u.start === "newop") setTimeout(() => { if (!FORM) ACT.newop(); }, 0); } }
   const view = App.views[UI.view] || App.views.home;
   CH = {}; chSeq = 0;
