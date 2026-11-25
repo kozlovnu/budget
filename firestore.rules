@@ -1,10 +1,26 @@
 rules_version = '2';
-// Доступ: каждый вошедший пользователь видит и меняет только свою папку users/{его uid}/…
-// Остальное закрыто для всех.
+// Доступ по приглашению.
+// invites/{код}  — коды приглашений, их заводит владелец в консоли. Код можно проверить по имени, список кодов не читается.
+// members/{uid}  — отметка, что пользователь активирован; создать её можно только с действующим кодом.
+// users/{uid}/…  — данные пользователя; доступны только ему самому и только после активации.
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedAs(uid) { return request.auth != null && request.auth.uid == uid; }
+    function member(uid) { return exists(/databases/$(database)/documents/members/$(uid)); }
+
+    match /invites/{code} {
+      allow get: if true;
+    }
+    match /members/{uid} {
+      allow get: if signedAs(uid);
+      allow create: if signedAs(uid)
+        && request.resource.data.keys().hasOnly(['code', 'email', 'at'])
+        && request.resource.data.code is string
+        && request.resource.data.code.matches('^[A-Za-z0-9_-]{4,64}$')
+        && exists(/databases/$(database)/documents/invites/$(request.resource.data.code));
+    }
     match /users/{uid}/{document=**} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read, write: if signedAs(uid) && member(uid);
     }
   }
 }

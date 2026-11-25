@@ -82,13 +82,58 @@ const Cloud = (() => {
   const AUTH_ERR = {
     "auth/invalid-credential": "Неверная почта или пароль", "auth/wrong-password": "Неверная почта или пароль", "auth/user-not-found": "Неверная почта или пароль",
     "auth/invalid-email": "Почта указана с ошибкой", "auth/too-many-requests": "Слишком много попыток — подождите несколько минут",
-    "auth/network-request-failed": "Нет связи — проверьте интернет", "auth/user-disabled": "Учётная запись отключена"
+    "auth/network-request-failed": "Нет связи — проверьте интернет", "auth/user-disabled": "Учётная запись отключена",
+    "auth/email-already-in-use": "Эта почта уже зарегистрирована — войдите", "auth/weak-password": "Пароль слишком простой — минимум 6 символов",
+    "auth/operation-not-allowed": "Регистрация выключена в настройках Firebase", "auth/admin-restricted-operation": "Регистрация выключена в настройках Firebase",
+    "permission-denied": "Код приглашения не подходит"
   };
   const authErrText = e => AUTH_ERR[e && e.code] || "Не удалось войти — повторите";
   async function signIn(email, pass) { const r = await F.signInWithEmailAndPassword(auth, email.trim(), pass); user = r.user; return user; }
   const resetPassword = email => F.sendPasswordResetEmail(auth, email.trim());
+
+  /* ---------- доступ по приглашению ----------
+     Пользователь получает доступ к своей базе, когда у него есть документ members/{uid}.
+     Создать его можно только с действующим кодом из invites/{код} — это проверяют правила Firestore.
+     Коды заводит владелец в консоли Firebase; посторонний без кода не сможет ничего записать в базу. */
+  const CODE_RE = /^[A-Za-z0-9_-]{4,64}$/;
+  const memberKey = () => "budget.member." + (user && user.uid);
+  const normCode = c => String(c || "").trim();
+  /** Есть ли такой код. Читать отдельный код по имени можно без входа, список кодов — нельзя. */
+  async function inviteOk(code) {
+    code = normCode(code); if (!CODE_RE.test(code)) return false;
+    return (await F.getDoc(F.doc(fs, "invites", code))).exists();
+  }
+  async function isMember() {
+    if (!user) return false;
+    try {
+      const ok = (await F.getDoc(F.doc(fs, "members", user.uid))).exists();
+      try { ok ? localStorage.setItem(memberKey(), "1") : localStorage.removeItem(memberKey()); } catch (e) {}
+      return ok;
+    } catch (e) {
+      // без сети — верим отметке с прошлого запуска на этом устройстве
+      let was = false; try { was = localStorage.getItem(memberKey()) === "1"; } catch (x) {}
+      if (was && e && (e.code === "unavailable" || e.code === "failed-precondition")) return true;
+      if (e && e.code === "permission-denied") return false;
+      throw err(e);
+    }
+  }
+  async function join(code) {
+    code = normCode(code);
+    if (!CODE_RE.test(code)) { const x = new Error("code"); x.code = "permission-denied"; throw x; }
+    await F.setDoc(F.doc(fs, "members", user.uid), { code, email: user.email || "", at: new Date().toISOString() });
+    try { localStorage.setItem(memberKey(), "1"); } catch (e) {}
+  }
+  /** Регистрация: сначала проверяем код, потом создаём учётную запись и сразу привязываем код.
+      Если привязать не вышло — удаляем только что созданную запись, чтобы не оставлять пустых аккаунтов. */
+  async function signUp(email, pass, code) {
+    if (!(await inviteOk(code))) { const x = new Error("code"); x.code = "permission-denied"; throw x; }
+    const r = await F.createUserWithEmailAndPassword(auth, email.trim(), pass); user = r.user;
+    try { await join(code); } catch (e) { try { await r.user.delete(); } catch (x) {} user = null; throw e; }
+    return user;
+  }
   /** Выход: кроме сеанса стираем и копию базы на этом устройстве. */
   async function signOut() {
+    try { localStorage.removeItem(memberKey()); } catch (e) {}
     try { await F.signOut(auth); } finally {
       try { await F.terminate(fs); await F.clearIndexedDbPersistence(fs); } catch (e) { warn("очистка кэша базы", e); }
     }
@@ -110,7 +155,7 @@ const Cloud = (() => {
   };
 
   return {
-    init, db, downloads, signIn, signOut, resetPassword, authErrText,
+    init, db, downloads, signIn, signOut, signUp, resetPassword, authErrText, isMember, join, inviteOk,
     ready: () => firstAuth, email: () => (user && user.email) || "",
     _codec: { enc, dec, nullsToDelete } // для тестов
   };

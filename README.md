@@ -10,12 +10,21 @@
 
 1. Откройте [console.firebase.google.com](https://console.firebase.google.com) → **Создать проект** (например, `my-budget`). Google Analytics не нужен.
 2. **Build → Authentication → Get started → Sign-in method → Email/Password → Enable** (только первый переключатель).
-3. **Authentication → Users → Add user**: ваша почта и пароль. Это единственный аккаунт приложения.
-4. **Authentication → Settings → User actions**: снимите **Enable create (sign-up)**, чтобы никто не мог зарегистрироваться сам. Если такого пункта нет, это не страшно: правила базы и так пускают каждого только в его собственную папку.
+3. **Authentication → Settings → User actions**: оставьте включённым **Enable create (sign-up)** — через него работает регистрация по приглашению.
+4. **Firestore → Data → Start collection** `invites` → Document ID = код приглашения (например, `family-2026`), любое поле, например `note: для кого`. Это первый код — им вы активируете и свой аккаунт.
 5. **Build → Firestore Database → Create database**, режим **Production**, регион ближе к вам (например, `europe-west`).
 6. **Firestore → Rules**: замените текст содержимым файла [firestore.rules](firestore.rules) → **Publish**.
 7. **Настройки проекта (шестерёнка) → General → Your apps → Web (`</>`)**: зарегистрируйте приложение (Hosting не включать) и скопируйте объект `firebaseConfig`.
 8. Вставьте его в `js/core/firebase-config.js` вместо `window.FIREBASE_CONFIG = null;`.
+
+## Новые пользователи
+
+Регистрация — по коду приглашения: на экране входа «Нет аккаунта? Создать по приглашению» → почта, пароль, код.
+- Код — это документ в коллекции `invites` (Firestore → Data). Имя документа и есть код: 4–64 символа, латиница, цифры, `-` и `_`.
+- Один код можно давать нескольким людям. Чтобы закрыть код — удалите документ.
+- Каждый пользователь видит только свои данные. Кто и каким кодом активирован — в коллекции `members`.
+- Аккаунт, созданный вручную в Authentication → Users, при первом входе попросит код приглашения.
+- Без действующего кода в базу ничего не записать: это проверяют правила Firestore, а не приложение.
 
 ## Публикация на GitHub Pages
 
