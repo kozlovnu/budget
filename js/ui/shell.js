@@ -4,7 +4,7 @@
 /* Вкладки нижней панели (на ноутбуке — боковое меню). */
 const MAIN_TABS = [["home", "Главная", "home"], ["journal", "Журнал", "list"], ["analytics", "Аналитика", "bars"], ["capital", "Капитал", "cap"], ["accounts", "Счета", "card"]];
 /* Разделы внутри «Счетов»: на телефоне — в списке «Ещё», на ноутбуке — подпункты меню. */
-const ACC_SUB = [["debts", "Долги", "person"], ["reconcile", "Сверка", "recon"], ["import", "Импорт", "imp"]];
+const ACC_SUB = [["bills", "Платежи", "bill"], ["debts", "Долги", "person"], ["reconcile", "Сверка", "recon"], ["import", "Импорт", "imp"]];
 function render(fromDb) {
   bumpEpoch();
   const h = location.hash.replace("#", "");

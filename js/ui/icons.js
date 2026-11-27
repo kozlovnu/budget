@@ -23,6 +23,7 @@ const IC = {
   back: '<path d="M15 5l-7 7 7 7"/>',
   close: '<path d="M6 6l12 12M18 6L6 18"/>',
   check: '<path d="M5 12l5 5 9-10"/>',
+  bill: '<path d="M6 3.5h12v17l-2-1.3-2 1.3-2-1.3-2 1.3-2-1.3-2 1.3z"/><path d="M9 8.5h6M9 12h6M9 15.5h3.5"/>',
   bank: '<path d="M12 3l9 5H3zM5 11v7M10 11v7M14 11v7M19 11v7M3 21h18"/>',
   broker: '<path d="M3 17l6-6 4 4 8-8M15 7h6v6"/>',
   fund: '<path d="M12 3a9 9 0 1 0 9 9h-9z"/>',

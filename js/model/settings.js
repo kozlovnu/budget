@@ -5,6 +5,7 @@
      budgets    — лимиты по категориям { категория: {v, cur} }; limitTotal — общий лимит {v, cur}
      forecast   — всё о прогнозе: параметры модели (hz, fx, by, infl, extOn, bt, kinds) и сценарии events
      my         — личные суммы с месяцем начала действия (salary, bonus, incomes, deposits, fixed),
+                  регулярные счета и правила их оплаты (bills — схема в calc/bills.js),
                   вид (ui), профиль (name, about), служебное (autoBk, lastBackup, defAcc…)
    До версии 2 параметры прогноза жили в двух местах (fc2 и forecast), а личные суммы — ещё и в fc2.
    Версия 3: появилась Главная — стартовый экран «Капитал» (прежнее значение по умолчанию) становится «Главной»;
@@ -42,6 +43,7 @@ function normalizeSettings(st) {
   if (M.about == null) M.about = "";
   if (!isObj(M.fixed)) M.fixed = {};
   if (M.daily !== undefined && !(isObj(M.daily) && Array.isArray(M.daily.exclude))) delete M.daily; // нет — значит «по умолчанию»
+  if (M.bills !== undefined) { if (!isObj(M.bills)) delete M.bills; else { if (!Array.isArray(M.bills.list)) M.bills.list = []; M.bills.list = M.bills.list.filter(b => isObj(b) && b.id); for (const b of M.bills.list) if (!Array.isArray(b.subs)) b.subs = []; if (!isObj(M.bills.marks)) M.bills.marks = {}; } } // регулярные счета (calc/bills.js)
   // 2) параметры модели прогноза из fc2 → forecast; старые поля прогноза удаляются
   if (isObj(st.fc2)) {
     for (const k in FC_DEF) if (F[k] == null && old[k] != null) F[k] = old[k];

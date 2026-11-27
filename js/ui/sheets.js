@@ -19,8 +19,8 @@ function accSelect(id, val, label, spend) { return '<div class="field"><label fo
 
 function newOpForm(o) {
   const spendable = a => a && !a.archived && !["deposit", "broker", "fund"].includes(a.type); const lastAcc = lsGet("lastAcc"); const pref = ((S.settings || {}).my || {}).defAcc; const def = pref && spendable(acc(pref)) ? pref : spendable(acc(lastAcc)) ? lastAcc : (accs().find(spendable) || accs().find(a => !a.archived) || {}).id;
-  return o ? { kind: "op", title: "Операция", id: o.id, oldD: o.d, t: o.t, a: String(o.a).replace(".", ","), ac: o.ac, to: o.to || "", ta: o.ta != null ? String(o.ta).replace(".", ",") : "", c: o.c, s: o.s || "", d: o.d, n: o.n || "", card: o.card, src: o.src, oldA: o.a, armDel: false }
-    : { kind: "op", title: "Новая операция", t: "e", a: "", ac: def, to: "", ta: "", c: "", s: "", d: TODAYS, n: "" };
+  return o ? { kind: "op", title: "Операция", id: o.id, oldD: o.d, t: o.t, a: String(o.a).replace(".", ","), ac: o.ac, to: o.to || "", ta: o.ta != null ? String(o.ta).replace(".", ",") : "", c: o.c, s: o.s || "", d: o.d, n: o.n || "", card: o.card, src: o.src, p: o.p || "", p2: o.p2 || "", b: o.b || "", oldA: o.a, armDel: false }
+    : { kind: "op", title: "Новая операция", t: "e", a: "", ac: def, to: "", ta: "", c: "", s: "", d: TODAYS, n: "", p: "", p2: "", b: "" };
 }
 function sOp() {
   const F = FORM; const C = (S.settings && S.settings.cats) || { e: [], i: [] };
@@ -30,16 +30,39 @@ function sOp() {
   h += '<div class="card" style="display:flex;flex-direction:column;gap:2px"><label for="f-a" class="mut" style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.04em">Сумма, ' + SYM[cur] + '</label><input id="f-a" data-f="a" class="amount n" inputmode="decimal" autocomplete="off" value="' + esc(F.a) + '" placeholder="0" style="color:' + (F.t === "i" ? "var(--greenT)" : "var(--label)") + '"><div class="calc"><small id="f-a-res" class="n mut" aria-live="polite">' + esc(calcPreview(F.a, cur)) + '</small><span class="calcb">' + [["+", "+", "Плюс"], ["−", "-", "Минус"], ["×", "*", "Умножить"], ["÷", "/", "Разделить"], ["=", "=", "Посчитать"]].map(x => '<button type="button" data-act="calcop" data-o="' + x[1] + '" aria-label="' + x[2] + '">' + x[0] + '</button>').join("") + '</span></div></div>';
   h += '<div class="group">' + accSelect("f-ac", F.ac, F.t === "t" ? "Откуда" : "Счет", F.t === "e") + (F.t === "t" ? accSelect("f-to", F.to, "Куда") : "") +
     (F.t === "t" && F.ac && F.to && accCur(F.to) !== cur ? '<div class="field"><label for="f-ta">Зачислено, ' + SYM[accCur(F.to)] + '</label><input id="f-ta" data-f="ta" class="n" inputmode="decimal" value="' + esc(F.ta) + '" placeholder="' + esc(nf(conv(calcNum(F.a) || 0, cur, accCur(F.to), F.d.slice(0, 7)), 2)) + '"></div>' : "") +
-    '<div class="field"><label for="f-d">Дата</label><input id="f-d" type="date" data-f="d" value="' + esc(F.d) + '"></div><div class="field"><label for="f-n">Заметка</label><input id="f-n" data-f="n" value="' + esc(F.n) + '" placeholder="место, повод"></div></div>';
+    '<div class="field"><label for="f-d">Дата</label><input id="f-d" type="date" data-f="d" value="' + esc(F.d) + '"></div>' + (F.t !== "t" ? perFields(F) : "") + '<div class="field"><label for="f-n">Заметка</label><input id="f-n" data-f="n" value="' + esc(F.n) + '" placeholder="место, повод"></div></div>';
   if (F.t !== "t") {
     const list = C[F.t] || [], fav = F.t === "e" ? PZ().favs.filter(n => list.some(c => c.name === n)) : [];
     const allC = !fav.length || F.allCats || (F.c && !fav.includes(F.c)), shown = fav.map(n => list.find(c => c.name === n)).concat(allC ? list.filter(c => !fav.includes(c.name)) : []);
     h += '<section style="display:flex;flex-direction:column;gap:8px"><span class="caps" style="padding:0 4px">Категория</span><div class="grid4">' + shown.map(c => '<button class="opt" data-act="opcat" data-c="' + esc(c.name) + '" aria-pressed="' + (F.c === c.name) + '"><span class="tile" style="background:' + catColor(c.name) + ';width:26px;height:26px;font-size:12px;font-weight:700;color:#fff">' + esc(c.name[0]) + '</span>' + esc(c.name) + '</button>').join("") + '</div>' + (allC ? "" : '<button class="chipb" data-act="allcats" style="align-self:flex-start">Все категории</button>') + '</section>';
     const cc = list.find(c => c.name === F.c);
     if (F.c) h += '<section style="display:flex;flex-direction:column;gap:8px"><span class="caps" style="padding:0 4px">Подкатегория</span><div class="chips">' + ((cc && cc.subs) || []).slice(0, 12).map(s => '<button class="chipb" data-act="opsub" data-s="' + esc(s) + '" aria-pressed="' + (F.s === s) + '">' + esc(s) + '</button>').join("") + '</div><div class="group"><div class="field"><label for="f-s">Своя</label><input id="f-s" data-f="s" value="' + esc(F.s) + '" placeholder="например, обед"></div></div></section>';
+    if (F.t === "e" && F.c) h += billChips(F);
   }
   if (F.id) h += F.armDel ? '<button class="btn danger" data-act="delop" style="color:#fff;background:var(--red)">Удалить без возврата</button>' : '<button class="btn danger" data-act="armdelop">Удалить операцию</button>';
   return h;
+}
+/** Черновик операции из формы — чтобы понять, к какому регулярному счёту она относится. */
+function formOp(F) { return { t: F.t, c: F.c, s: (F.s || "").trim(), n: F.n || "", ac: F.ac, d: /^\d{4}-\d{2}-\d{2}$/.test(F.d || "") ? F.d : TODAYS, b: F.b || "" }; }
+/** Поле «За период»: месяц, за который операция (счёт за квартиру за октябрь, оплаченный в ноябре).
+    Пусто — месяц по правилу регулярного счёта, а без счёта — месяц даты. «по» — если оплачено сразу несколько месяцев. */
+function perAuto(F) {
+  const b = F.t === "e" ? billOf(formOp(F)) : null, dm = formOp(F).d.slice(0, 7), auto = addMonth(dm, b ? +b.per || 0 : 0);
+  return b ? "авто · " + MON[+auto.slice(5) - 1] + (auto.slice(0, 4) !== dm.slice(0, 4) ? " " + auto.slice(0, 4) : "") : "как дата";
+}
+function perFields(F) {
+  const dm = formOp(F).d.slice(0, 7);
+  const ms = []; for (let k = 3; k >= -14; k--) ms.push(addMonth(dm, k));
+  if (F.p && !ms.includes(F.p)) ms.push(F.p);
+  let h = '<div class="field"><label for="f-p">За период</label><select id="f-p" data-f="p"><option value="">' + perAuto(F) + '</option>' + ms.map(m => '<option value="' + m + '"' + (F.p === m ? " selected" : "") + '>' + mLabel(m) + '</option>').join("") + '</select></div>';
+  if (F.p) { const to = []; for (let k = 1; k <= 12; k++) to.push(addMonth(F.p, k)); if (F.p2 && !to.includes(F.p2)) to.push(F.p2); h += '<div class="field"><label for="f-p2">по</label><select id="f-p2" data-f="p2"><option value="">тот же месяц</option>' + to.map(m => '<option value="' + m + '"' + (F.p2 === m ? " selected" : "") + '>' + mLabel(m) + '</option>').join("") + '</select></div>'; }
+  return h;
+}
+/** Выбор регулярного счёта, если под категорию операции заведены счета (раздел «Платежи»). */
+function billChips(F) {
+  const L = billList().filter(b => b.c === F.c); if (!L.length) return "";
+  const cur = F.b === "-" ? "-" : (billOf(formOp(F)) || {}).id || "";
+  return '<section id="f-bills" style="display:flex;flex-direction:column;gap:8px"><span class="caps" style="padding:0 4px"><span>Платёж</span><span>' + (F.b ? "выбран вручную" : cur ? "по правилу" : "") + '</span></span><div class="chips">' + L.map(b => '<button class="chipb" data-act="opbill" data-b="' + esc(b.id) + '" aria-pressed="' + (cur === b.id) + '">' + esc(b.name) + '</button>').join("") + '<button class="chipb" data-act="opbill" data-b="-" aria-pressed="' + (cur === "-") + '">не платёж</button></div></section>';
 }
 function sAcc() {
   const F = FORM;
@@ -122,8 +145,9 @@ App.actions({
   newop: () => { dayTick(); if (!S.accounts) return toast("Сначала добавьте счет"); openSheet(newOpForm()); },
   editop: t => { const o = (S.ops[t.dataset.m] || []).find(x => x.id === t.dataset.id); if (o) openSheet(newOpForm(o)); },
   optype: t => { readForm(); FORM.t = t.dataset.t; FORM.c = ""; FORM.s = ""; if (FORM.t !== "t" && !FORM.ac) FORM.ac = newOpForm().ac; renderSheet(); },
-  opcat: t => { readForm(); FORM.c = t.dataset.c; FORM.s = ""; renderSheet(); },
-  opsub: t => { readForm(); FORM.s = FORM.s === t.dataset.s ? "" : t.dataset.s; renderSheet(); },
+  opcat: t => { readForm(); FORM.c = t.dataset.c; FORM.s = ""; FORM.b = ""; renderSheet(); },
+  opsub: t => { readForm(); FORM.s = FORM.s === t.dataset.s ? "" : t.dataset.s; if (FORM.b !== "-") FORM.b = ""; renderSheet(); },
+  opbill: t => { readForm(); const id = t.dataset.b; FORM.b = FORM.b === id ? "" : id; renderSheet(); },
   armdelop: () => { readForm(); FORM.armDel = true; renderSheet(); },
   delop: async () => { const o = (S.ops[FORM.oldD.slice(0, 7)] || []).find(x => x.id === FORM.id); closeSheet(); if (o) { try { await delOp(o); } catch (e) { return; } render(); toast("Операция удалена" + anchorNote(o), () => putOp(o)); } },
   saveop: async () => {
@@ -140,6 +164,8 @@ App.actions({
     if (F.t === "t") { op.c = "Перевод"; if (F.to) op.to = F.to; const ta = calcNum(F.ta); if (F.ac && F.to && accCur(F.to) !== accCur(F.ac) && ta > 0) op.ta = ta; }
     else { op.c = F.c; if (F.s && F.s.trim()) op.s = F.s.trim(); }
     if (F.n && F.n.trim()) op.n = F.n.trim();
+    if (F.t !== "t" && /^\d{4}-\d{2}$/.test(F.p || "")) { op.p = F.p; if (/^\d{4}-\d{2}$/.test(F.p2 || "") && F.p2 > F.p) op.p2 = F.p2; }
+    if (F.t === "e" && F.b && (F.b === "-" || (billById(F.b) || {}).c === op.c)) op.b = F.b;
     if (F.card) op.card = F.card; if (F.src) op.src = F.src;
     const unchanged = F.id && op.d === F.oldD && op.a === F.oldA;
     if (!unchanged) {
@@ -164,3 +190,10 @@ App.actions({
 
 /* ---------- поля модуля ---------- */
 App.change(t => t.dataset.f === "ac" || t.dataset.f === "to", async t => { readForm(); renderSheet(); });
+/* «За период»: после выбора месяца появляется «по»; дата и заметка меняют месяц и счёт по правилу */
+App.change(t => FORM && FORM.kind === "op" && t.dataset.f === "p", async t => { readForm(); if (FORM.p2 && FORM.p && FORM.p2 <= FORM.p) FORM.p2 = ""; if (!FORM.p) FORM.p2 = ""; renderSheet(); });
+// текстовые поля и дату не перерисовываем целиком (пропало бы нажатие на следующее поле) — только подсказки
+App.change(t => FORM && FORM.kind === "op" && ["d", "n", "s"].includes(t.dataset.f) && billList().length, async t => {
+  readForm(); const o = document.querySelector('#f-p option[value=""]'); if (o) o.textContent = perAuto(FORM);
+  const sec = document.getElementById("f-bills"); if (sec && FORM.t === "e" && FORM.c) sec.outerHTML = billChips(FORM) || "<span></span>";
+});

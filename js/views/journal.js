@@ -67,7 +67,7 @@ function opRow(o, accId, showBal) {
   const cur = opCur(o);
   let title, meta, amt, cls = "";
   if (o.t === "t") { title = "Перевод" + (o.s && o.s !== "Перевод" ? " · " + o.s : ""); meta = accName(o.ac) + " → " + accName(o.to); amt = money(o.a, cur); cls = "mut"; }
-  else { title = esc(o.c) + (o.s ? " · " + esc(o.s) : ""); meta = esc(accName(o.ac)) + (o.card ? " · " + esc(o.card) : "") + (o.n ? " · " + esc(o.n) : ""); amt = money(o.t === "e" ? -o.a : o.a, cur, { sign: o.t === "i" }); cls = o.t === "i" ? "pos" : ""; }
+  else { title = esc(o.c) + (o.s ? " · " + esc(o.s) : ""); meta = esc(accName(o.ac)) + (o.p ? " · " + esc(opPerTxt(o)) : "") + (o.card ? " · " + esc(o.card) : "") + (o.n ? " · " + esc(o.n) : ""); amt = money(o.t === "e" ? -o.a : o.a, cur, { sign: o.t === "i" }); cls = o.t === "i" ? "pos" : ""; }
   return '<button class="row" data-act="editop" data-id="' + esc(o.id) + '" data-m="' + o.d.slice(0, 7) + '">' + (o.t === "t" ? '<span class="tile" style="background:#8E8E93">' + svg("fx", 18) + '</span>' : catTile(o.c)) + '<span class="body"><span class="t"><b>' + (o.t === "t" ? esc(title) : title) + '</b><small>' + (o.t === "t" ? esc(meta) : meta) + '</small></span><span class="v n ' + cls + '">' + amt + (showBal ? balAfter(o, accId) : "") + '</span></span></button>';
 }
 

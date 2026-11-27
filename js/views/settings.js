@@ -279,8 +279,8 @@ App.actions({
   delcat: async t => { const L = S.settings.cats[t.dataset.t], i = +t.dataset.i, c = L[i]; L.splice(i, 1); render(); await saveMeta("settings"); toast("Категория «" + c.name + "» удалена", async () => { const L2 = S.settings.cats[t.dataset.t]; if (L2.some(x => x.name === c.name)) return; L2.splice(Math.min(i, L2.length), 0, c); await saveMeta("settings"); }); },
   exportcsv: async () => {
     if (!DL) return toast("Выгрузка недоступна в этом просмотре");
-    const rows = [["Дата", "Тип", "Счет", "Сумма", "Валюта", "Категория", "Подкатегория", "Заметка", "Куда"]];
-    for (const o of allOps()) rows.push([o.d, { e: "расход", i: "доход", t: "перевод" }[o.t], accName(o.ac), String(o.a).replace(".", ","), opCur(o), o.c || "", o.s || "", o.n || "", o.to ? accName(o.to) : ""]);
+    const rows = [["Дата", "Тип", "Счет", "Сумма", "Валюта", "Категория", "Подкатегория", "Заметка", "Куда", "За период", "Платёж"]];
+    for (const o of allOps()) rows.push([o.d, { e: "расход", i: "доход", t: "перевод" }[o.t], accName(o.ac), String(o.a).replace(".", ","), opCur(o), o.c || "", o.s || "", o.n || "", o.to ? accName(o.to) : "", o.p ? o.p + (o.p2 ? "…" + o.p2 : "") : "", (billOf(o) || {}).name || ""]);
     const csv = "﻿" + rows.map(r => r.map(x => /[;"\n]/.test(x) ? '"' + String(x).replace(/"/g, '""') + '"' : x).join(";")).join("\n");
     try { await DL.save({ filename: "budget-operations-" + TODAYS + ".csv", data: csv }); toast("Файл сохранен"); } catch (e) { if (e && e.code !== "declined") toast("Не удалось сохранить файл"); }
   },

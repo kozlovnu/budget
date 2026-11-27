@@ -4,7 +4,7 @@
 const fs = require("fs"), path = require("path"), vm = require("vm");
 const root = path.join(__dirname, "..");
 const files = ["js/core/util.js", "js/core/app.js", "js/core/state.js", "js/calc/money.js", "js/calc/ledger.js", "js/calc/limits.js",
-  "js/model/settings.js", "js/core/db.js", "js/calc/insights.js", "js/calc/pulse.js", "js/calc/forecast.js", "js/features/fctrack.js", "js/views/journal.js", "tests/calc.test.js"];
+  "js/model/settings.js", "js/core/db.js", "js/calc/insights.js", "js/calc/pulse.js", "js/calc/bills.js", "js/calc/forecast.js", "js/features/fctrack.js", "js/views/journal.js", "tests/calc.test.js"];
 const stubEl = () => ({ innerHTML: "", dataset: {}, classList: { toggle() {}, add() {}, remove() {}, contains: () => false }, setAttribute() {}, removeAttribute() {}, querySelector: () => null, querySelectorAll: () => [], appendChild() {} });
 const ctx = {
   console, setTimeout, clearTimeout, setInterval: () => 0, Intl, Math, JSON, Date,

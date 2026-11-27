@@ -21,7 +21,7 @@ function homeCtx() {
 function homeDefault() {
   const main = accs().find(a => a.main && !a.archived && a.inCap) || accs().find(a => !a.archived);
   return [{ id: "cap", size: "M" }, { id: "month", size: "M" }].concat(main ? [{ id: "acc:" + main.id, size: "S" }] : [],
-    [{ id: "attn", size: "S" }, { id: "limits", size: "S" }, { id: "index", size: "S" }, { id: "save", size: "S" }, { id: "fc", size: "S" }, { id: "ops", size: "M" }]);
+    [{ id: "attn", size: "S" }, { id: "limits", size: "S" }, { id: "index", size: "S" }, { id: "save", size: "S" }, { id: "fc", size: "S" }].concat(billList().length ? [{ id: "bills", size: "S" }] : [], [{ id: "ops", size: "M" }]));
 }
 const wType = id => String(id).split(":")[0], wArg = id => String(id).split(":").slice(1).join(":");
 /** Виджет доступен: тип зарегистрирован и включён; у экземпляра (счёта) — счёт существует. */
