@@ -73,6 +73,10 @@ const Demo = (() => {
       add(m, 8, { t: "t", ac: "dt", a: 25000, to: "dd", ta: 25000 });
       exp(m, 10, "dh", between(560000, 720000, 1000), "Коммунальные", "", "Свет, газ, интернет");
       exp(m, 12, "dt", 399, "Подписки", "", "Музыка");
+      // квартира в Москве: квартплата (в одном месяце пропущена — видно в «Платежах»), свет, телефон
+      if (i !== 3) exp(m, 11, "dt", between(5200, 6100, 10), "Коммунальные", "квартплата", "");
+      exp(m, 15, "dt", between(900, 1500, 10), "Коммунальные", "электричество", "");
+      exp(m, 9, "dt", 650, "Коммунальные", "телефон", "");
       exp(m, 14, "dt", 1290, "Подписки", "", "Облако и кино");
       for (let k = 0; k < 9; k++) exp(m, 2 + k * 3, rnd() < 0.7 ? "dh" : "dv", between(110000, 560000, 1000), "Продукты", "", k % 3 ? "" : "Korzinka");
       for (let k = 0; k < 7; k++) exp(m, 3 + k * 4, "dv", between(85000, 340000, 1000), "Кафе", "", ["Кофейня", "Обед с коллегами", "Ужин", "Плов-центр", "Пицца", "Кофейня", "Суши"][k]);
@@ -87,7 +91,8 @@ const Demo = (() => {
     });
 
     const st = { v: SETTINGS_V, cats: DEF_CATS(), budgets: { "Кафе": { v: 2500000, cur: "UZS" }, "Продукты": { v: 4500000, cur: "UZS" }, "Развлечения": { v: 600000, cur: "UZS" } }, forecast: {},
-      my: { name: "Демо", salary: { hist: [{ from: first, v: 26000000, cur: "UZS" }] }, ui: { home: null } } };
+      my: { name: "Демо", salary: { hist: [{ from: first, v: 26000000, cur: "UZS" }] }, ui: { home: null },
+        bills: { list: [{ id: "bkv", name: "Квартплата", c: "Коммунальные", subs: ["квартплата"], pf: "ru", txt: "", per: -1, from: "" }, { id: "bel", name: "Электричество", c: "Коммунальные", subs: ["электричество"], pf: "ru", txt: "", per: -1, from: "" }], marks: {} } } };
     delete st.my.ui.home;
     const seedDocs = {
       "meta/accounts": { list: accounts }, "meta/rates": { m: rates }, "meta/snaps": { items: snaps }, "meta/settings": st

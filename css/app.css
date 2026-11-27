@@ -552,3 +552,24 @@ html.locked .tabwrap{display:none}
 .gd-row .t small{white-space:normal;line-height:1.3}
 .gd-row .gd-go{color:var(--muted);font-size:22px;line-height:1;flex:none}
 @media (prefers-reduced-motion:reduce){.gd-bar i{transition:none}}
+/* Платежи */
+.bdot{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;flex:none;font-size:13px;font-weight:700;line-height:1}
+.bdot.soon{box-shadow:inset 0 0 0 1.5px var(--gray)!important;opacity:.55;transform:scale(.6)}
+.bdot svg{stroke-width:3}
+.bgrid-w{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.bgrid{border-collapse:separate;border-spacing:0;font-size:12px;min-width:100%}
+.bgrid th,.bgrid td{padding:4px 1px;text-align:center;white-space:nowrap}
+.bgrid thead th{font-weight:600;color:var(--muted);font-size:11.5px}
+.bgrid thead th.cur{color:var(--link)}
+.bgrid tbody th{position:sticky;left:0;z-index:1;background:var(--card);text-align:left;font-weight:400;padding-left:14px;padding-right:6px;max-width:104px}
+.bgrid tbody th button{max-width:96px;display:block;font-size:14px;color:var(--label);text-align:left}
+.bgrid td button{display:inline-flex;padding:3px;border-radius:999px}
+.bgrid tr>:last-child{padding-right:12px}
+.bgrid tr.tot th,.bgrid tr.tot td{border-top:1px solid var(--sep);font-size:10.5px;color:var(--muted);padding-top:8px;font-variant-numeric:tabular-nums}
+.bgrid tr.tot th{font-size:12px;white-space:normal;line-height:1.2}
+.row .t small+small{white-space:normal}
+.blegend{display:flex;flex-wrap:wrap;gap:6px 14px;padding:10px 14px 2px;font-size:12px;color:var(--muted)}
+.blegend span{display:inline-flex;align-items:center;gap:5px}
+.blw{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 12px;font-size:13.5px;font-weight:500}
+.blw>span{display:flex;align-items:center;gap:6px;min-width:0}
+@media (min-width:900px){.bgrid tbody th{max-width:150px}.bgrid tbody th button{max-width:142px}}

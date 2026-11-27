@@ -246,6 +246,59 @@ test("долг по месяцам: тело, набежавшие процен�
   eq(closed.map(x => x.m), ["2026-02", "2026-01"], "закрытый долг — до месяца закрытия");
 });
 
+/* Регулярные счета («Платежи»): какие траты к какому счёту и месяцу относятся. Месяцы — от текущего, чтобы тесты не устаревали. */
+function billFixture() {
+  const m0 = curM(), M = k => addMonth(m0, k), d = (k, day) => M(k) + "-" + String(day).padStart(2, "0");
+  S.accounts = { list: [{ id: "ru", name: "Карта RU", type: "card", cur: "RUB", country: "RU", inCap: true }, { id: "uz", name: "Карта UZ", type: "card", cur: "UZS", country: "UZ", inCap: true }] };
+  S.rates = { m: { [M(-12)]: { usd: 90, eur: 100, uzs: 140, kzt: 6 } } }; S.snaps = { items: {} };
+  S.settings = { cats: { e: [{ name: "Коммунальные", subs: ["квартира", "паркинг"] }, { name: "Связь", subs: [] }], i: [] }, budgets: {}, forecast: { kinds: {} },
+    my: { bills: { list: [
+      { id: "kv", name: "Квартплата", c: "Коммунальные", subs: ["квартира"], pf: "ru", txt: "", per: -1, from: "" },
+      { id: "el", name: "Электричество", c: "Коммунальные", subs: ["квартира"], pf: "ru", txt: "свет", per: -1, from: "" },
+      { id: "p1", name: "Паркинг 1", c: "Коммунальные", subs: ["паркинг"], pf: "ru", txt: "", per: -1, from: "" },
+      { id: "p2", name: "Паркинг 2", c: "Коммунальные", subs: ["паркинг"], pf: "ru", txt: "", per: -1, from: "" },
+      { id: "tel", name: "Телефон", c: "Связь", subs: [], pf: "ru", txt: "", per: 0, from: M(-3) }], marks: { tel: { [M(-2)]: "paid" } } } } };
+  normalizeSettings(S.settings);
+  const ops = [
+    { id: "a1", d: d(-2, 10), t: "e", a: 5000, ac: "ru", c: "Коммунальные", s: "квартира" },                 // квартплата за M(-3)
+    { id: "a2", d: d(-1, 10), t: "e", a: 5100, ac: "ru", c: "Коммунальные", s: "квартира" },                 // за M(-2)
+    { id: "a3", d: d(-1, 12), t: "e", a: 900, ac: "ru", c: "Коммунальные", s: "квартира", n: "свет и мусор" }, // электричество за M(-2)
+    { id: "a4", d: d(-1, 15), t: "e", a: 3000, ac: "ru", c: "Коммунальные", s: "паркинг" },                  // подходит под оба паркинга
+    { id: "a5", d: d(-1, 16), t: "e", a: 3000, ac: "ru", c: "Коммунальные", s: "паркинг", b: "p2" },         // явно — второй паркинг
+    { id: "a6", d: d(-1, 20), t: "e", a: 1200, ac: "ru", c: "Коммунальные", s: "квартира", p: M(-4), p2: M(-3) }, // сразу за два месяца
+    { id: "a7", d: d(0, 3), t: "e", a: 700, ac: "ru", c: "Связь" },                                         // телефон за текущий
+    { id: "a8", d: d(0, 4), t: "e", a: 99000, ac: "uz", c: "Связь" },                                       // другой портфель — не телефон RU
+    { id: "a9", d: d(0, 5), t: "e", a: 500, ac: "ru", c: "Связь", b: "-" }                                  // явно не счёт
+  ];
+  S.ops = {}; for (const o of ops) (S.ops[o.d.slice(0, 7)] = S.ops[o.d.slice(0, 7)] || []).push(o);
+  ALLOPS = null; bumpEpoch();
+  return M;
+}
+test("платежи: счёт по правилу, точное правило важнее, явная привязка и «не счёт»", () => {
+  billFixture(); const id = x => (billOf(allOps().find(o => o.id === x)) || {}).id || null;
+  eq(["a1", "a3", "a4", "a5", "a7", "a8", "a9"].map(id), ["kv", "el", "p1", "p2", "tel", null, null]);
+});
+test("платежи: месяц оплаты — по правилу счёта или из поля «За период»", () => {
+  const M = billFixture(), P = billPays().by;
+  eq(Object.keys(P.kv).sort(), [M(-4), M(-3), M(-2)]);
+  near(P.kv[M(-3)].rub, 5000 + 600, 1e-6, "оплата за два месяца делится поровну");
+  ok(P.tel[M(0)] && !P.tel[M(-1)], "связь — за текущий месяц");
+  eq(billPays().amb.map(o => o.id), ["a4"], "неоднозначная операция — только без явной привязки");
+});
+test("платежи: состояние месяцев — оплачено, вручную, к оплате, пропуск, до начала", () => {
+  const M = billFixture(), st = (b, k) => billCell(billById(b), M(k)).st;
+  eq([st("kv", -2), st("kv", -1), st("kv", 0), st("kv", -5)], ["paid", "due", "soon", "none"]);
+  eq([st("tel", -3), st("tel", -2), st("tel", 0), st("tel", -4)], ["late", "manual", "paid", "none"]);
+  eq(st("el", -3), "none", "без «следить с» — с первой оплаты");
+  const N = billsNow(); eq([N.n, N.done], [5, 1]); eq(N.rows.find(r => r.b.id === "tel").late, [M(-1), M(-3)], "пропуски — от последнего");
+});
+test("платежи: подпись периода и пустые настройки", () => {
+  const M = billFixture();
+  eq(opPerTxt({ p: M(-1) }), "за " + MONS[+M(-1).slice(5) - 1] + (M(-1).slice(0, 4) !== TODAYS.slice(0, 4) ? " " + M(-1).slice(0, 4) : ""));
+  eq(opPerTxt({}), "");
+  S.settings = { cats: { e: [], i: [] }, budgets: {} }; bumpEpoch(); eq(billList().length, 0); eq(billOf({ t: "e", c: "Связь", d: TODAYS }), null);
+});
+
 function runTests() {
   const res = [];
   for (const [name, fn] of TESTS) { try { fn(); res.push({ name, ok: true }); } catch (e) { res.push({ name, ok: false, err: String(e && e.message || e) }); } }
